@@ -1,0 +1,19 @@
+{
+  "device": "cpu",
+  "block_size": 128,
+  "d_model": 128,
+  "n_layers": 4,
+  "n_heads": 4,
+  "prompt_len": 1,
+  "new_tokens": 127,
+  "runs": 5,
+  "naive_tokens_per_sec": {
+    "mean": 161.98474155312712,
+    "std": 24.249118522856463
+  },
+  "cached_tokens_per_sec": {
+    "mean": 392.3942591751977,
+    "std": 60.01899847891259
+  },
+  "speedup": 2.4224149473146626
+}
