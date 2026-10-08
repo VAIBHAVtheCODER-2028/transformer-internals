@@ -38,15 +38,17 @@ class MultiHeadAttention(nn.Module):
         # After concatenating all heads' outputs back to d_model dimensions, this linear layer lets the model mix/combine information across. heads — without it, the heads' outputs would just sit side by side with no interaction.
         self.proj = nn.Linear(d_model, d_model)
         self.dropout = nn.Dropout(dropout) 
+        self.store_attn = False   # set to True to keep the attention weights
+        self.last_attn = None     # will hold (B, n_heads, T, T) after a forward pass        
 
     def forward(self, x):
-        # Run every head independently, each returns (B, T, d_k)
-        head_outputs=[h(x)[0] for h in self.heads]   # [0] because head returns (out, attn_weights)
+        results = [h(x) for h in self.heads]               # each returns (out, attn_weights)
+        out = torch.cat([r[0] for r in results], dim=-1)   # (B, T, d_model)
 
-        # Concatenate along the last dimension: n_heads * d_k = d_model again
-        out = torch.cat(head_outputs, dim=-1)  # (B, T, d_model)
+        if self.store_attn:
+            self.last_attn = torch.stack([r[1] for r in results], dim=1).detach()  # (B, n_heads, T, T)
 
-        out=self.proj(out)
+        out = self.proj(out)
         out = self.dropout(out)
         return out 
 
